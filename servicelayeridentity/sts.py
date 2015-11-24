@@ -15,4 +15,8 @@ class StsClient(object):
         response = requests.post(self.base_url + "token/issue",
                                  data=payload,
                                  verify=verify)
-        return response.json()['accessToken']
+        token = response.json()['accessToken']
+        if token:
+            return token
+        else:
+            response.raise_for_status()

@@ -1,4 +1,5 @@
 import requests
+from .exceptions import TokenRequestError
 
 
 class StsClient(object):
@@ -19,4 +20,12 @@ class StsClient(object):
         if token:
             return token
         else:
-            response.raise_for_status()
+            http_error_msg = ''
+            if 400 <= response.status_code < 500:
+                http_error_msg = '%s Client Error: %s' % (
+                    response.status_code, response.json()['message'])
+            elif 500 <= response.status_code < 600:
+                http_error_msg = '%s Server Error: %s' % (
+                    response.status_code, response.json()['message'])
+            if http_error_msg:
+                raise TokenRequestError(http_error_msg, response.status_code)
